@@ -1,0 +1,128 @@
+---
+title: "Conflict and Homicides"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Packages
+
+
+```{r}
+library(WDI)
+library(wbstats)
+library(tidyverse)
+```
+
+## Homicides 
+
+
+```{r}
+# pull and combine data
+intentional_homicide = WDI(indicator='VC.IHR.PSRC.P5')
+intentional_homicide_fem = WDI(indicator = "VC.IHR.PSRC.FE.P5")
+intentional_homicide_male = WDI(indicator = "VC.IHR.PSRC.MA.P5")
+
+intentional_homicide["Female"] <- intentional_homicide_fem["VC.IHR.PSRC.FE.P5"]
+intentional_homicide["Male"] <- intentional_homicide_male["VC.IHR.PSRC.MA.P5"]
+```
+
+```{r}
+intentional_homicide %>% 
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5)) +
+  geom_point()
+```
+
+```{r}
+intentional_homicide %>% 
+  group_by(year) %>% 
+  drop_na() %>% 
+  summarise(VC.IHR.PSRC.P5 = sum(VC.IHR.PSRC.P5)) %>% 
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5)) +
+  geom_point()
+```
+
+```{r}
+intentional_homicide %>% 
+  group_by(year) %>% 
+  drop_na() %>% 
+  summarise(Female = sum(Female)) %>% 
+  ggplot(aes(x= year, y = Female)) +
+  geom_point() 
+
+intentional_homicide %>% 
+  group_by(year) %>% 
+  drop_na() %>% 
+  summarise(Male = sum(Male)) %>% 
+  ggplot(aes(x= year, y = Male)) +
+  geom_point()
+
+
+```
+
+```{r}
+# put them both on the same graph
+intentional_homicide %>% 
+  pivot_longer(cols = c(Male, Female)) %>% 
+  group_by(year) %>% 
+  drop_na() %>% 
+  ggplot(aes(x= year, y = value, color=name)) +
+  geom_smooth(method = "loess",se=F,size=1.5) +
+  facet_wrap(~name,nrow=1) +
+  geom_point() 
+```
+
+```{r}
+# by region
+intentional_homicide %>%
+  filter(country == c("Arab World", "East Asia & Pacific")) %>% 
+  group_by()
+```
+
+## Conflict
+
+```{r}
+# WDI Battle Deaths
+battle_deaths <- WDI(indicator = 'VC.BTL.DETH')
+```
+
+
+
+```{r}
+battle_deaths %>% 
+  ggplot(aes(x= year, y = VC.BTL.DETH)) +
+  geom_point() +
+  geom_text(aes(label=ifelse(VC.BTL.DETH>75000,as.character(country),'')),hjust=0,vjust=0, size = 3)
+
+battle_deaths %>% 
+  group_by(year) %>% 
+  drop_na() %>% 
+  summarise(VC.BTL.DETH = sum(VC.BTL.DETH)) %>% 
+  ggplot(aes(x= year, y = VC.BTL.DETH)) +
+  geom_point() 
+```
+
+
+
+```{r warning = FALSE, message = FALSE}
+#ACLED
+setwd("Data")
+ACLED <- read_csv("ACLED.csv")
+
+ACLED %>% 
+  group_by(year) %>% 
+  count(event_type)
+```
+
+
+
+
+
+
+
+
+
+
+
