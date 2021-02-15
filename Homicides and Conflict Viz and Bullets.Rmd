@@ -30,19 +30,37 @@ intentional_homicide["Male"] <- intentional_homicide_male["VC.IHR.PSRC.MA.P5"]
 ```
 
 ```{r}
+intentional_homicide <- intentional_homicide %>% 
+  drop_na()
+```
+
+
+```{r}
 intentional_homicide %>% 
   ggplot(aes(x= year, y = VC.IHR.PSRC.P5)) +
-  geom_point()
+  geom_point() 
 ```
 
 ```{r}
 intentional_homicide %>% 
+  slice(-(1:2868)) %>% 
   group_by(year) %>% 
   drop_na() %>% 
   summarise(VC.IHR.PSRC.P5 = sum(VC.IHR.PSRC.P5)) %>% 
   ggplot(aes(x= year, y = VC.IHR.PSRC.P5)) +
   geom_point()
+
+intentional_homicide %>% 
+  group_by(year) %>% 
+  drop_na() %>% 
+  filter(country == "World") %>% 
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5)) +
+  geom_point()
 ```
+
+- Homicides go up (potentially data collection) and then come back down
+
+_ But when we do world the trend is downward? Is there somehting about the data collection that I'm not understanding
 
 ```{r}
 intentional_homicide %>% 
@@ -62,11 +80,12 @@ intentional_homicide %>%
 
 ```
 
+- men commit way more homicides than women
+
 ```{r}
 # put them both on the same graph
 intentional_homicide %>% 
   pivot_longer(cols = c(Male, Female)) %>% 
-  group_by(year) %>% 
   drop_na() %>% 
   ggplot(aes(x= year, y = value, color=name)) +
   geom_smooth(method = "loess",se=F,size=1.5) +
@@ -77,52 +96,109 @@ intentional_homicide %>%
 ```{r}
 # by region
 intentional_homicide %>%
-  filter(country == c("Arab World", "East Asia & Pacific")) %>% 
-  group_by()
+  filter(country %in% c("Arab World", "East Asia & Pacific", "Europe & Central Asia", "Latin America & Caribbean"), year > 2000) %>% 
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5, color = country)) +
+  geom_point()
+  
 ```
+```{r}
+# break up by income group
+income <- c("Low income", "Middle income", "High income")
+
+intentional_homicide %>%
+  filter(country %in% income) %>% 
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5, color = country)) +
+  geom_point()
+ 
+```
+
+-LAC has super high homicide rates
+- High income has lower homicides than medium, low
+
 
 ## Conflict
 
 ```{r}
 # WDI Battle Deaths
-battle_deaths <- WDI(indicator = 'VC.BTL.DETH')
+battle_deaths <- WDI(indicator = 'VC.BTL.DETH') 
+
+# dropna
+battle_deaths<- battle_deaths %>% 
+  drop_na()
 ```
 
 
 
 ```{r}
 battle_deaths %>% 
+  slice(-(1:183)) %>% 
   ggplot(aes(x= year, y = VC.BTL.DETH)) +
   geom_point() +
   geom_text(aes(label=ifelse(VC.BTL.DETH>75000,as.character(country),'')),hjust=0,vjust=0, size = 3)
 
 battle_deaths %>% 
+  slice(-(1:183)) %>% 
   group_by(year) %>% 
   drop_na() %>% 
   summarise(VC.BTL.DETH = sum(VC.BTL.DETH)) %>% 
   ggplot(aes(x= year, y = VC.BTL.DETH)) +
+  geom_smooth(method = "loess",se=F,color="red",size=.5) +
   geom_point() 
 ```
+- There's a clear trend up that goes down, back up, and then peaks at about 2015 and then comes down again
+
+```{r}
+# remove syria
+battle_deaths %>% 
+  slice(-(1:183)) %>% 
+  filter(country != "Syrian Arab Republic") %>% 
+  group_by(year) %>% 
+  drop_na() %>% 
+  summarise(VC.BTL.DETH = sum(VC.BTL.DETH)) %>% 
+  ggplot(aes(x= year, y = VC.BTL.DETH)) +
+  geom_smooth(method = "loess",se=F,color="red",size=.5) +
+  geom_point() 
 
 
+```
+- filtering by Syria gets rid of the peak, but there is still a pronounced increase from 2010 on
 
 ```{r warning = FALSE, message = FALSE}
 #ACLED
 setwd("Data")
 ACLED <- read_csv("ACLED.csv")
+  
+```
 
+```{r}
 ACLED %>% 
-  group_by(year) %>% 
   count(event_type)
 ```
 
+```{r}
+ACLED %>% 
+  ggplot(aes(event_type)) +
+  geom_bar()
+
+ACLED %>% 
+  ggplot(aes(event_type, fatalities, fill = region)) +
+  geom_col()
+
+ACLED %>% 
+  ggplot(aes(event_type, fatalities, fill = region)) +
+  geom_col(position = "dodge")
+```
+
+- Protests are by far the most common occurence, with battles second. Battles are the most deadly by far
 
 
 
 
+```{r}
+ACLED %>% 
+  ggplot(aes(region, fatalities, fill = region)) +
+  geom_col()
+```
 
-
-
-
-
+Middle East has the largest number of fatalities in the ACLED data
 
