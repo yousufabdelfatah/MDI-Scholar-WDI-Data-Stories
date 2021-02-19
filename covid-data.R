@@ -43,7 +43,7 @@ full_country_data <- dplyr::bind_rows(full_country_data)
 full_country_data <- full_country_data %>%
   select("iso", "name", "date", "confirmed", "deaths")
 
-#get world bank data
+#Get world bank data -----------------------------------------------------
 death_comp <- WDI(indicator = c('Maternal mortality ratio (modeled estimate, per 100,000 live births)'  = 'SH.STA.MMRT', 
                                'mortality rate (under-5) (per 1,000 live births)' = 'SH.DYN.MORT', 
                                'Mortality rate attributed to household and ambient air pollution, age-standardized (per 100,000 population)' = 'SH.STA.AIRP.P5',
@@ -52,7 +52,8 @@ death_comp <- WDI(indicator = c('Maternal mortality ratio (modeled estimate, per
                                'Cause of death, by injury (% of total)' = 'SH.DTH.INJR.ZS',
                                'Cause of death, by non-communicable diseases (% of total)' = 'SH.DTH.NCOM.ZS',
                                'Refugee population by country or territory of asylum' = 'SM.POP.REFG',
-                               'Refugee population by country or territory of origin' = 'SM.POP.REFG.OR'), latest = 1) 
+                               'Refugee population by country or territory of origin' = 'SM.POP.REFG.OR',
+                               'Population' = 'SP.POP.TOTL'), latest = 1) 
 
 case_comp <- WDI(indicator = c('Poverty headcount ratio at $1.90 a day (2011 PPP) (% of population)' = 'SI.POV.DDAY',
                                 'Prevalence of stunting, height for age (% of children under 5)' = 'SH.STA.STNT.ZS',
@@ -63,10 +64,15 @@ case_comp <- WDI(indicator = c('Poverty headcount ratio at $1.90 a day (2011 PPP
                                 'PM2.5 air pollution, population exposed to levels exceeding WHO guideline value (% of total)' = 'EN.ATM.PM25.MC.ZS',
                                 'People using safely managed drinking water services (% of population) (compare to opposite)' = 'SH.H2O.SMDW.ZS',
                                 'People with basic handwashing facilities including soap and water (% of population)' = 'SH.STA.HYGN.ZS',
-                                'Low-birthweight babies (% of births)' = 'SH.STA.BRTW.ZS'), latest = 1)
+                                'Low-birthweight babies (% of births)' = 'SH.STA.BRTW.ZS',
+                                'Population' = 'SP.POP.TOTL'), latest = 1)
 
-# there are several countries with years before 2015 in death_comp so let's get rid of them
+# Manipulate Data ----------------------------------------------------------
+# there are several countries with years before 2015 so let's get rid of them
 death_comp <- death_comp %>% 
+  filter(year >= 2015)
+
+case_comp <- case_comp %>% 
   filter(year >= 2015)
   
 #sum cases and deaths
@@ -86,40 +92,44 @@ case_comp_data <- summed_data %>%
   select(-total_covid_deaths) %>% 
   left_join(case_comp, by = c("name" = "country"))
 
-glimpse(case_comp_data)
 
-# this doens't make sense you can't sum percentages- we either need to make covid cases a percent or per 1000 etc
+# calculate percentages 
+case_comp_data$covid_case_pct_pop <- case_comp_data$total_covid_cases /  case_comp_data$Population
+
+case_comp_data$covid_case_per_1000 <- case_comp_data$total_covid_cases /  1000
+
+case_comp_data$covid_case_per_100000 <- case_comp_data$total_covid_cases /  100000
+
+death_comp_data$covid_death_pct_pop <- death_comp_data$total_covid_deaths /  death_comp_data$Population
+
+death_comp_data$covid_death_per_1000 <- death_comp_data$total_covid_deaths /  1000
+
+death_comp_data$covid_death_per_100000 <- death_comp_data$total_covid_deaths /  100000
+
+
+
+# Visualizations ------------------------------------------------------------
+
 case_comp_data %>%
   select(-iso2c) %>% 
   replace(is.na(.), 0) %>% 
-  summarise_at(c("total_covid_cases",
-                 "Poverty headcount ratio at $1.90 a day (2011 PPP) (% of population)",
-                 "Prevalence of stunting, height for age (% of children under 5)",
-                 "Prevalence of underweight, weight for age (% of children under 5)",
-                 "Adolescents out of school (% of lower secondary school age)",
-                 "Children out of school (% of primary school age)",
-                 "Literacy rate (or illiteracy)",
-                 "PM2.5 air pollution, population exposed to levels exceeding WHO guideline value (% of total)",
-                 "People using safely managed drinking water services (% of population) (compare to opposite)",
-                 "People with basic handwashing facilities including soap and water (% of population)",
-                 "Low-birthweight babies (% of births)"), sum) %>% 
-  pivot_longer(cols = c("total_covid_cases",
-                        "Poverty headcount ratio at $1.90 a day (2011 PPP) (% of population)",
-                        "Prevalence of stunting, height for age (% of children under 5)",
-                        "Prevalence of underweight, weight for age (% of children under 5)",
-                        "Adolescents out of school (% of lower secondary school age)",
-                        "Children out of school (% of primary school age)",
-                        "Literacy rate (or illiteracy)",
-                        "PM2.5 air pollution, population exposed to levels exceeding WHO guideline value (% of total)",
-                        "People using safely managed drinking water services (% of population) (compare to opposite)",
-                        "People with basic handwashing facilities including soap and water (% of population)",
-                        "Low-birthweight babies (% of births)")) %>% 
+  summarise_at(c("covid_case_pct_pop",
+                 "PM2.5 air pollution, population exposed to levels exceeding WHO guideline value (% of total)"
+                  ), sum) %>% 
+  pivot_longer(cols = c("covid_case_pct_pop",
+                        "PM2.5 air pollution, population exposed to levels exceeding WHO guideline value (% of total)"
+                        )) %>% 
   ggplot(aes(name, value)) +
   geom_col() +
   facet_wrap(~name,scales="free")
-  
 
 
+case_comp_data
+
+case_comp_data %>%
+  select(-iso2c) %>% 
+  replace(is.na(.), 0) %>% 
+  summarise_at('total_covid_cases', sum)
 
 
 
