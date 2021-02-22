@@ -106,9 +106,40 @@ death_comp_data$covid_death_per_1000 <- death_comp_data$total_covid_deaths /  10
 
 death_comp_data$covid_death_per_100000 <- death_comp_data$total_covid_deaths /  100000
 
+# Summary Stats and Correlation Matrix ---------------------------------------
+no_year <- case_comp_data %>% 
+  select(-c(year, iso2c)) %>% 
+  group_by(name) %>% 
+  replace(is.na(.), 0) %>% 
+  summarise_all(mean) %>% 
+  na_if(0)
 
+min_max <- no_year %>% 
+  select(-name) %>% 
+  summarise_all(list(min, max))
+
+summary_stats <- no_year %>% 
+  select(-name) %>% 
+  drop_na() %>% 
+  summarise_all(list(mean = mean,max = max,min = min))
+
+matrix <- (no_year) %>% 
+  select(-name) %>% 
+  drop_na() %>% 
+  correlate()
+
+# plot correlations
+rplot(matrix)
+
+matrix2 <- matrix
+
+matrix2[, -1] <- matrix[, -1] + rnorm(cumprod(dim(matrix[, -1]))[-1], sd = 0.001)
+
+matrix2 %>% 
+  network_plot(min_cor = .2)
 
 # Visualizations ------------------------------------------------------------
+
 
 case_comp_data %>%
   select(-iso2c) %>% 
@@ -124,7 +155,6 @@ case_comp_data %>%
   facet_wrap(~name,scales="free")
 
 
-case_comp_data
 
 case_comp_data %>%
   select(-iso2c) %>% 
@@ -132,5 +162,44 @@ case_comp_data %>%
   summarise_at('total_covid_cases', sum)
 
 
+# lay things out spatially
+world <- 
+  map_data("world") %>% 
+  select(long,lat,group,country=region) %>% 
+  # Again standardize the country names
+  mutate(country = 
+           countrycode::countrycode(country,"country.name","country.name")) %>% 
+  mutate(country = ifelse(country == "South Sudan","Sudan",country))
+
+# subset the relevant African countries in the data.
+world_comp <- 
+  case_comp_data %>% 
+  group_by(name) %>% 
+  mutate(country = 
+           countrycode::countrycode(name,"country.name","country.name")) %>% 
+  inner_join(world,by="country")
+
+# map 
+library("ggthemes")
+
+world_comp %>% 
+  ggplot(aes(x=long,y=lat,group=group,fill=total_covid_cases)) +
+  geom_polygon(color="white",size=.25) +
+  scale_fill_gradient2_tableau() +
+  theme_map() +
+  labs(fill="total covid cases",
+       title = "Average Life Expectancy in Africa"
+       ) +
+  theme(text=element_text(family = "serif",face="bold",size=14))
+
+world_comp %>% 
+  ggplot(aes(x=long,y=lat,group=group,fill=covid_case_per_100000)) +
+  geom_polygon(color="white",size=.25) +
+  scale_fill_gradient2_tableau() +
+  theme_map() +
+  labs(fill="Covid Cases Per 100000",
+       title = "Cases per 100000"
+  ) +
+  theme(text=element_text(family = "serif",face="bold",size=14))
 
 
