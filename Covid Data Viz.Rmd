@@ -1,0 +1,137 @@
+---
+title: "Covid Viz"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# load packages
+library(tidyverse)
+library("ggthemes")
+```
+
+
+```{r}
+# load data
+case_comp_data <- read.csv("Data/case_comp_data.csv")
+
+death_comp_data <- read.csv("Data/death_comp_data.csv")
+```
+
+```{r}
+# summary statistics
+no_year <- case_comp_data %>% 
+  select(-c(year, iso2c)) %>% 
+  group_by(name) %>% 
+  replace(is.na(.), 0) %>% 
+  summarise_all(mean) %>% 
+  na_if(0)
+
+min_max <- no_year %>% 
+  select(-name) %>% 
+  summarise_all(list(min, max))
+
+summary_stats <- no_year %>% 
+  select(-name) %>% 
+  drop_na() %>% 
+  summarise_all(list(mean = mean,max = max,min = min))
+```
+
+
+```{r}
+case_comp_data %>% 
+  select(PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total.)
+```
+
+
+```{r}
+case_comp_data %>%
+  select(-iso2c) %>% 
+  replace(is.na(.), 0) %>% 
+  summarise_at(c("covid_case_pct_pop",
+                 "PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total."
+                  ), sum) %>% 
+  pivot_longer(cols = c("covid_case_pct_pop",
+                        "PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total."
+                        )) %>% 
+  ggplot(aes(name, value)) +
+  geom_col() +
+  facet_wrap(~name,scales="free")
+```
+
+```{r}
+# lay things out spatially
+world <- 
+  map_data("world") %>% 
+  select(long,lat,group,country=region) %>% 
+  # standardize the country names
+  mutate(country = 
+           countrycode::countrycode(country,"country.name","country.name"))
+
+# subset the relevant African countries in the data.
+world_comp <- 
+  no_year %>% 
+  group_by(name) %>% 
+  mutate(country = 
+           countrycode::countrycode(name,"country.name","country.name")) %>% 
+  inner_join(world,by="country")
+```
+
+
+```{r}
+no_year %>% 
+  filter(name == c("Belgium", "Bhutan")) %>% 
+  select(name, covid_case_pct_pop, Poverty.headcount.ratio.at..1.90.a.day..2011.PPP.....of.population.) %>% 
+  # mutate(covid_case_pct_pop = covid_case_pct_pop*100) %>% 
+  pivot_longer(cols = c("covid_case_pct_pop", "Poverty.headcount.ratio.at..1.90.a.day..2011.PPP.....of.population."), names_to = "variables") %>% 
+  ggplot() + 
+  geom_bar(aes(x = variables, y = value, fill = name), 
+           stat = "identity", position = "dodge")  
+```
+
+```{r}
+no_year %>% 
+  filter(name == c("Belgium", "Bhutan")) %>% 
+  select(name, covid_case_pct_pop, Poverty.headcount.ratio.at..1.90.a.day..2011.PPP.....of.population.) %>% 
+  # mutate(covid_case_pct_pop = covid_case_pct_pop*100) %>% 
+  pivot_longer(cols = c("covid_case_pct_pop", "Poverty.headcount.ratio.at..1.90.a.day..2011.PPP.....of.population."), names_to = "variables") %>% 
+  ggplot(aes(value)) +
+  geom_density(aes(fill=name), alpha=0.8) 
+  
+```
+
+
+
+```{r}
+world_comp %>% 
+  slice(-(1:1234)) %>% 
+  ggplot(aes(x=long,y=lat,group=group,fill=total_covid_cases)) +
+  geom_polygon(color="white",size=.25) +
+  scale_fill_gradient2_tableau() +
+  theme_map() +
+  labs(fill="total covid cases",
+       title = "Total Covid Cases"
+       ) +
+  theme(text=element_text(family = "serif",face="bold",size=14))
+```
+
+```{r}
+world_comp %>% 
+  slice(-(1:1234)) %>% 
+  ggplot(aes(x=long,y=lat,group=group,fill=Prevalence.of.underweight..weight.for.age....of.children.under.5.)) +
+  geom_polygon(color="white",size=.25) +
+  scale_fill_gradient2_tableau() +
+  theme_map() +
+  theme(text=element_text(family = "serif",face="bold",size=14))
+```
+
+
+
+
+
+
+
