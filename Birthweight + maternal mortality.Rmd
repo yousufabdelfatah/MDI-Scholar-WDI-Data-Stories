@@ -1,0 +1,131 @@
+---
+title: "Birthweight + Maternal Mortality"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+# load packages
+library(tidyverse)
+library(ggthemes)
+library(ggrepel)
+library(ggalt)
+```
+
+```{r}
+# load data
+case_comp_data <- read.csv("Data/case_comp_data.csv")
+
+death_comp_data <- read.csv("Data/death_comp_data.csv")
+```
+
+```{r}
+no_year <- case_comp_data %>% 
+  select(-c(year, iso2c)) %>% 
+  group_by(name) %>% 
+  replace(is.na(.), 0) %>% 
+  summarise_all(mean) %>% 
+  na_if(0)
+```
+
+```{r}
+no_year_death <- death_comp_data %>% 
+  select(-c(year, iso2c)) %>% 
+  group_by(name) %>% 
+  replace(is.na(.), 0) %>% 
+  summarise_all(mean) %>% 
+  na_if(0)
+```
+
+
+
+```{r}
+# dumbbell plot
+# maternal mortality
+no_year_death$name <- factor(no_year_death$name, levels=as.character(no_year_death$name))
+
+no_year_death %>% 
+  filter(name != 'World') %>% 
+  arrange(desc(Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births.)) %>% 
+  slice(1:10) %>% 
+  ggplot(aes(x= covid_death_per_100000, xend=Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births., y = name, group = name )) +
+  geom_dumbbell() 
+  
+
+no_year_death %>% 
+  filter(name != 'World') %>% 
+  arrange(Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births.) %>% 
+  slice(1:10) %>% 
+  ggplot(aes(xend= covid_death_per_100000, x=Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births., y = name, group = name )) +
+  geom_dumbbell() 
+
+```
+
+```{r}
+# birthweight
+no_year %>% 
+  filter(name != 'World') %>% 
+  arrange(desc(Low.birthweight.babies....of.births.)) %>% 
+  slice(1:10) %>% 
+  arrange(desc(covid_case_pct_pop)) %>% 
+  ggplot(aes(x= covid_case_pct_pop, xend=Low.birthweight.babies....of.births., y = name, group = name )) +
+  geom_dumbbell() 
+
+no_year %>% 
+  filter(name != 'World') %>% 
+  arrange(Low.birthweight.babies....of.births.) %>% 
+  slice(1:10) %>% 
+  arrange(desc(covid_case_pct_pop)) %>% 
+  ggplot(aes(x= covid_case_pct_pop, xend=Low.birthweight.babies....of.births., y = name, group = name )) +
+  geom_dumbbell() 
+```
+
+```{r}
+# birthweight
+no_year %>% 
+  filter(name == 'South Africa' | name == "India" | name == "Brazil") %>% 
+  arrange(desc(Low.birthweight.babies....of.births.)) %>% 
+  slice(1:10) %>% 
+  arrange(desc(covid_case_pct_pop)) %>% 
+  ggplot(aes(x= covid_case_pct_pop, xend=Low.birthweight.babies....of.births., y = name, group = name )) +
+  geom_dumbbell() 
+
+```
+
+
+```{r}
+# density plot
+no_year_death %>% 
+  ggplot( aes(x=Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births., color = name)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+```
+
+```{r}
+# density plot
+no_year_death %>% 
+  ggplot( aes(x=covid_death_pct_pop, color = name)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+```
+
+
+
+```{r}
+no_year %>% 
+  ggplot( aes(x=Low.birthweight.babies....of.births., color = name)) +
+    geom_density(fill="#FF6666", color="#e9ecef", alpha=0.8)
+```
+```{r}
+no_year %>% 
+  ggplot( aes(x=covid_case_pct_pop, color = name)) +
+    geom_density(fill="#FF6666", color="#e9ecef", alpha=0.8)
+```
+
+
+
+
+

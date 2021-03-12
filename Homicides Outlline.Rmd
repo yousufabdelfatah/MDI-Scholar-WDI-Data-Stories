@@ -1,0 +1,158 @@
+---
+title: "Homicides Outline"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(WDI)
+library(wbstats)
+library(tidyverse)
+library(ggalt)
+```
+
+
+```{r}
+# pull and combine data
+intentional_homicide = WDI(indicator='VC.IHR.PSRC.P5', extra = TRUE)
+intentional_homicide_fem = WDI(indicator = "VC.IHR.PSRC.FE.P5", extra = TRUE)
+intentional_homicide_male = WDI(indicator = "VC.IHR.PSRC.MA.P5", extra = TRUE)
+
+intentional_homicide["Female"] <- intentional_homicide_fem["VC.IHR.PSRC.FE.P5"]
+intentional_homicide["Male"] <- intentional_homicide_male["VC.IHR.PSRC.MA.P5"]
+```
+
+
+
+```{r}
+# when we sum all worldwide homicides this is what we get
+intentional_homicide %>% 
+  drop_na() %>% 
+  filter(region != "Aggregates") %>% 
+  group_by(year) %>% 
+  summarise(VC.IHR.PSRC.P5 = sum(VC.IHR.PSRC.P5)) %>% 
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5)) +
+  geom_point()
+
+# but when we look at the world aggregate
+intentional_homicide %>% 
+  drop_na() %>% 
+  filter(country == "World") %>% 
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5)) +
+  geom_point()
+```
+
+- There's a downward trend for sure but the question is: does it go up first and then come down?
+- If we filter using only world it's going down but when we sum all countries it goes up?
+
+```{r}
+intentional_homicide %>% 
+  group_by(year) %>% 
+  drop_na() %>% 
+  summarise(Female = sum(Female)) %>% 
+  ggplot(aes(x= year, y = Female)) +
+  geom_point() 
+
+intentional_homicide %>% 
+  group_by(year) %>% 
+  drop_na() %>% 
+  summarise(Male = sum(Male)) %>% 
+  ggplot(aes(x= year, y = Male)) +
+  geom_point()
+```
+
+
+```{r}
+# put them both on the same graph
+intentional_homicide %>% 
+  pivot_longer(cols = c(Male, Female)) %>% 
+  drop_na() %>% 
+  ggplot(aes(x= year, y = value, color=name)) +
+  geom_smooth(method = "loess",se=F,size=1.5) +
+  facet_wrap(~name,nrow=1) +
+  geom_point() 
+```
+
+As demonstrated by the charts above, men and women have drastically different homicide rates, both in terms of averages and distributions. 
+
+
+```{r}
+# by region
+intentional_homicide %>%
+  filter(region != 'Aggregates',year > 1990) %>% 
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5, color = region)) +
+  geom_point()
+
+# averages
+intentional_homicide %>% 
+  filter(region != "Aggregates", year > 1990) %>% 
+  drop_na() %>% 
+  group_by(year, region) %>% 
+  summarise(VC.IHR.PSRC.P5 = mean(VC.IHR.PSRC.P5)) %>% 
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5, color = region)) +
+  geom_point()
+```
+The first graph shows individual countries colored by their respective region. 
+The second graph shows regional averages
+Latin America has significantly higher averages than any other region
+Sub Saharan Africa spikes after 2005?
+
+
+```{r}
+# break up by income group
+intentional_homicide %>%
+  filter(income != 'Aggregates',year > 1990) %>%
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5, color = income)) +
+  geom_point()
+
+# averages
+intentional_homicide %>% 
+  filter(region != "Aggregates", year > 1990) %>% 
+  drop_na() %>% 
+  group_by(year, income) %>% 
+  summarise(VC.IHR.PSRC.P5 = mean(VC.IHR.PSRC.P5)) %>% 
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5, color = income)) +
+  geom_point()
+```
+. 
+Interestingly it seems like the relationship between income and homicides are different than we may expect. Middle incomes seem to have the highest rates, high income is consistnelty low, and low income varies.
+
+
+```{r}
+# regress homicides on income
+intentional_homicide %>% 
+  filter(region != "Aggregates", year > 1990) %>% 
+  drop_na() %>% 
+  lm(VC.IHR.PSRC.P5 ~ factor(income), data = .) %>% 
+  summary()
+```
+
+Based on the regression it seems like upper middle income and lower middle income are actually more likely to be correlated with homicides and are highly statistically significant. 
+
+```{r}
+# dumbbell plot
+
+intentional_homicide %>% 
+  filter(region != "Aggregates") %>% 
+  drop_na() %>% 
+  group_by(region) %>% 
+  summarise(Female = mean(Female), Male= mean(Male)) %>% 
+  ggplot(aes(x=Female, xend=Male, y=region)) + 
+    geom_dumbbell(size=1.5, color="#b2b2b2", size_x=3, size_xend = 3, colour_x = 'red', colour_xend = 'blue') +
+    geom_text(aes(x=Male, y=region, label="Male"),
+          color=blue, size=3, vjust=-1.5) +
+  geom_text(aes(x=Female, y=region, label="Female"),
+          color=red, size=3, vjust=-1.5) +
+  geom_text(aes(x=Male, y=region, label=round(Male, 1)),
+          color='blue', size=2.75, vjust=2.5) +
+  geom_text(color='red', size=2.75, vjust=2.5,
+          aes(x=Female, y=region, label=round(Female, 1))) 
+  
+    
+```
+
+Even in Latin America being a woman reduces your homicide possibilty significanlty. Middle East low in both. Man in East Asiaa better than woman in LAC. 
+

@@ -11,7 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 # load packages
 library(tidyverse)
-library("ggthemes")
+library(ggthemes)
+library(ggrepel)
 ```
 
 
@@ -142,116 +143,138 @@ world_comp %>%
 
 ```{r}
 no_year %>% 
-  ggplot(aes(covid_case_pct_pop, Prevalence.of.underweight..weight.for.age....of.children.under.5.)) +
+  ggplot(aes(covid_case_pct_pop, Prevalence.of.underweight..weight.for.age....of.children.under.5., label = name)) +
   geom_point() +
+  geom_text() +
   geom_abline(intercept = 0, slope = 1) +
   xlim(0,15) +
-  ylim(0,15)
+  ylim(0,15) 
 ```
 
 
 
 ```{r}
 no_year %>% 
-  ggplot(aes(covid_case_pct_pop, Prevalence.of.stunting..height.for.age....of.children.under.5.)) +
+  ggplot(aes(covid_case_pct_pop, Prevalence.of.stunting..height.for.age....of.children.under.5., label = name)) +
   geom_point() +
   geom_abline(intercept = 0, slope = 1) +
   xlim(0,20) +
-  ylim(0,20)
+  ylim(0,20) + 
+  geom_text()
 ```
 
 
 ```{r}
 no_year %>% 
-  ggplot(aes(covid_case_pct_pop, PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total.)) +
+  ggplot(aes(covid_case_pct_pop, PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0,50)
+  xlim(0,50) + 
+  geom_text()
 ```
 
 ```{r}
 no_year %>% 
-  ggplot(aes(covid_case_pct_pop, Adolescents.out.of.school....of.lower.secondary.school.age.)) +
+  ggplot(aes(covid_case_pct_pop, Adolescents.out.of.school....of.lower.secondary.school.age., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0,25)
-```
-
-
-```{r}
-no_year %>% 
-  ggplot(aes(covid_case_pct_pop, Children.out.of.school....of.primary.school.age.)) +
-  geom_point() + 
-  geom_abline(intercept = 0, slope = 1) +
-  xlim(0,20)
+  xlim(0,25) + 
+  geom_text_repel()
 ```
 
 
 ```{r}
 no_year %>% 
-  ggplot(aes(covid_case_pct_pop, People.using.safely.managed.drinking.water.services....of.population...compare.to.opposite.)) +
+  ggplot(aes(covid_case_pct_pop, Children.out.of.school....of.primary.school.age., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0,34)
+  xlim(0,20) + 
+  geom_text_repel()
 ```
 
 
 ```{r}
 no_year %>% 
-  ggplot(aes(covid_case_pct_pop, People.with.basic.handwashing.facilities.including.soap.and.water....of.population.)) +
+  ggplot(aes(covid_case_pct_pop, People.using.safely.managed.drinking.water.services....of.population...compare.to.opposite., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0,40)
+  xlim(0,34) + 
+  geom_text_repel()
+```
+
+
+```{r}
+no_year %>% 
+  ggplot(aes(covid_case_pct_pop, People.with.basic.handwashing.facilities.including.soap.and.water....of.population., label = name)) +
+  geom_point() + 
+  geom_abline(intercept = 0, slope = 1) +
+  xlim(0,40) + 
+  geom_text_repel()
 ```
 
 ```{r}
 no_year %>% 
-  ggplot(aes(covid_case_pct_pop, Low.birthweight.babies....of.births.)) +
+  ggplot(aes(covid_case_pct_pop, Low.birthweight.babies....of.births., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0,8)
+  xlim(0,8) + 
+  geom_text_repel()
+
+ggsave("low_birthweight.png")
 ```
 
 ```{r}
 no_year_death %>% 
-  ggplot(aes(covid_death_per_100000, Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births.)) +
+  ggplot(aes(covid_death_per_100000, Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0,400)
+  xlim(0,400) + 
+  geom_text_repel()
+
+ggsave("maternal_mortality.png")
 ```
 
 ```{r}
 no_year_death %>% 
-  ggplot(aes(covid_death_per_1000, mortality.rate..under.5...per.1.000.live.births.)) +
+  ggplot(aes(covid_death_per_1000, mortality.rate..under.5...per.1.000.live.births., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
   ylim(0,400) +
-  xlim(0,400)
+  xlim(0,1000) + 
+  geom_text_repel(max.overlaps = 20)
 ```
 
 ```{r}
 no_year_death %>% 
-  ggplot(aes(covid_death_per_100000, Mortality.rate.attributed.to.household.and.ambient.air.pollution..age.standardized..per.100.000.population.)) +
+  ggplot(aes(covid_death_per_100000, Mortality.rate.attributed.to.household.and.ambient.air.pollution..age.standardized..per.100.000.population., label = name)) +
   geom_point() + 
-  geom_abline(intercept = 0, slope = 1) 
+  xlim(0,400) +
+  geom_abline(intercept = 0, slope = 1) + 
+  geom_text_repel()
+
+ggsave("pollution.png")
 ```
 
 ```{r}
 # this has some extreme outliers if you remove the xlim
 no_year_death %>% 
-  ggplot(aes(covid_death_per_100000, Mortality.rate.attributed.to.unintentional.poisoning..per.100.000.population.)) +
+  ggplot(aes(covid_death_per_100000, Mortality.rate.attributed.to.unintentional.poisoning..per.100.000.population., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0,5)
+  xlim(0,5) + 
+  geom_text_repel()
 ```
 
 ```{r}
 # also has outliers
 no_year_death %>% 
-  ggplot(aes(covid_death_per_100000, Mortality.rate.attributed.to.unsafe.water..unsafe.sanitation.and.lack.of.hygiene..per.100.000.population.)) +
+  ggplot(aes(covid_death_per_100000, Mortality.rate.attributed.to.unsafe.water..unsafe.sanitation.and.lack.of.hygiene..per.100.000.population., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0,200)
+  xlim(0,400) + 
+  geom_text_repel()
+
+ggsave("hygiene.png")
 ```
 
 
@@ -261,25 +284,28 @@ no_year_death %>%
   ggplot(aes(covid_death_pct_pop, Cause.of.death..by.injury....of.total.)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0,7)
+  xlim(0,7) + 
+  geom_text()
 ```
 
 
 ```{r}
 no_year_death %>% 
-  ggplot(aes(total_covid_deaths, Refugee.population.by.country.or.territory.of.asylum)) +
+  ggplot(aes(total_covid_deaths, Refugee.population.by.country.or.territory.of.asylum, label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0, 7500000)
+  xlim(0, 8500000) + 
+  geom_text(vjust = 0)
 ```
 
 
 ```{r}
 no_year_death %>% 
-  ggplot(aes(total_covid_deaths, Refugee.population.by.country.or.territory.of.origin)) +
+  ggplot(aes(total_covid_deaths, Refugee.population.by.country.or.territory.of.origin, label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0, 7500000)
+  xlim(0, 7500000) + 
+  geom_text_repel()
 ```
 
 

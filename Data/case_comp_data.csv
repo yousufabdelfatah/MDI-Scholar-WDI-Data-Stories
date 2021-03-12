@@ -1,4 +1,4 @@
-"name","total_covid_cases","iso2c","year","Poverty headcount ratio at $1.90 a day (2011 PPP) (% of population)","Prevalence of stunting, height for age (% of children under 5)","Prevalence of underweight, weight for age (% of children under 5)","Adolescents out of school (% of lower secondary school age)","Children out of school (% of primary school age)","Literacy rate (or illiteracy)","PM2.5 air pollution, population exposed to levels exceeding WHO guideline value (% of total)","People using safely managed drinking water services (% of population) (compare to opposite)","People with basic handwashing facilities including soap and water (% of population)","Low-birthweight babies (% of births)","Population","covid_case_pct_pop","covid_case_per_1000","covid_case_per_100000"
+"name","total_covid_cases","iso2c","year","Poverty.headcount.ratio.at..1.90.a.day..2011.PPP.....of.population.","Prevalence.of.stunting..height.for.age....of.children.under.5.","Prevalence.of.underweight..weight.for.age....of.children.under.5.","Adolescents.out.of.school....of.lower.secondary.school.age.","Children.out.of.school....of.primary.school.age.","Literacy.rate..or.illiteracy.","PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total.","People.using.safely.managed.drinking.water.services....of.population...compare.to.opposite.","People.with.basic.handwashing.facilities.including.soap.and.water....of.population.","Low.birthweight.babies....of.births.","Population","covid_case_pct_pop","covid_case_per_1000","covid_case_per_100000"
 "Afghanistan",11483966,"AF",2017,NA,NA,NA,NA,NA,NA,100,NA,37.7460320188898,NA,NA,NA,11483.966,114.83966
 "Afghanistan",11483966,"AF",2018,NA,38.2,19.1,NA,NA,43.019718170166,NA,NA,NA,NA,NA,NA,11483.966,114.83966
 "Afghanistan",11483966,"AF",2019,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,38041754,0.301877931285713,11483.966,114.83966
@@ -419,10 +419,10 @@
 "Mozambique",3634845,"MZ",2015,NA,42.3,15.6,43.1091194152832,NA,NA,NA,NA,12.2269838037985,13.8186529999999,NA,NA,3634.845,36.34845
 "Mozambique",3634845,"MZ",2017,NA,NA,NA,NA,NA,60.6554298400879,100,NA,NA,NA,NA,NA,3634.845,36.34845
 "Mozambique",3634845,"MZ",2019,NA,NA,NA,NA,2.40343999862671,NA,NA,NA,NA,NA,30366036,0.119701004108669,3634.845,36.34845
-"Namibia",3596221,"NA",2015,13.8,NA,NA,NA,NA,NA,NA,NA,NA,15.525137,NA,NA,3596.221,35.96221
-"Namibia",3596221,"NA",2017,NA,NA,NA,NA,NA,NA,100,NA,44.5999038527554,NA,NA,NA,3596.221,35.96221
-"Namibia",3596221,"NA",2018,NA,NA,NA,NA,1.51895999908447,91.5272674560547,NA,NA,NA,NA,NA,NA,3596.221,35.96221
-"Namibia",3596221,"NA",2019,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2494530,1.4416427142588,3596.221,35.96221
+"Namibia",3596221,NA,2015,13.8,NA,NA,NA,NA,NA,NA,NA,NA,15.525137,NA,NA,3596.221,35.96221
+"Namibia",3596221,NA,2017,NA,NA,NA,NA,NA,NA,100,NA,44.5999038527554,NA,NA,NA,3596.221,35.96221
+"Namibia",3596221,NA,2018,NA,NA,NA,NA,1.51895999908447,91.5272674560547,NA,NA,NA,NA,NA,NA,3596.221,35.96221
+"Namibia",3596221,NA,2019,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2494530,1.4416427142588,3596.221,35.96221
 "Nepal",36050635,"NP",2015,NA,NA,NA,NA,NA,NA,NA,NA,NA,21.8131279999999,NA,NA,36050.635,360.50635
 "Nepal",36050635,"NP",2016,NA,36,27.2,NA,NA,NA,NA,NA,NA,NA,NA,NA,36050.635,360.50635
 "Nepal",36050635,"NP",2017,NA,NA,NA,NA,NA,NA,100,27.2433528868722,47.7818400003274,NA,NA,NA,36050.635,360.50635

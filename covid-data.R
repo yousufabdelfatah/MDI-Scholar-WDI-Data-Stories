@@ -96,19 +96,24 @@ library(corrr)
 # 
 # # calculate percentages 
 # case_comp_data$covid_case_pct_pop <- case_comp_data$total_covid_cases /  case_comp_data$Population
-# 
-# case_comp_data$covid_case_per_1000 <- case_comp_data$total_covid_cases /  1000
-# 
-# case_comp_data$covid_case_per_100000 <- case_comp_data$total_covid_cases /  100000
-# 
+# # 
+# case_comp_data$covid_case_per_1000 <- case_comp_data$total_covid_cases / 1000
+# # 
+# case_comp_data$covid_case_per_100000 <- case_comp_data$total_covid_cases /100000
+# # 
 # death_comp_data$covid_death_pct_pop <- death_comp_data$total_covid_deaths /  death_comp_data$Population
+# # 
+# death_comp_data$covid_death_per_1000 <- death_comp_data$total_covid_deaths / 1000
+# # 
+# death_comp_data$covid_death_per_100000 <- death_comp_data$total_covid_deaths / 100000
 # 
-# death_comp_data$covid_death_per_1000 <- death_comp_data$total_covid_deaths /  1000
-# 
-# death_comp_data$covid_death_per_100000 <- death_comp_data$total_covid_deaths /  100000
+# write.csv(death_comp_data, "Data/death_comp_data.csv", row.names = FALSE)
+#  
+# write.csv(case_comp_data, "Data/case_comp_data.csv", row.names = FALSE) 
+
 case_comp_data <- read.csv("Data/case_comp_data.csv")
 
-death_comp_data <- read.csv("Data/deatb_comp_data.csv")
+death_comp_data <- read.csv("Data/death_comp_data.csv")
 # Summary Stats and Correlation Matrix ---------------------------------------
 no_year <- case_comp_data %>% 
   select(-c(year, iso2c)) %>% 
@@ -199,6 +204,3 @@ world_comp %>%
   ) +
   theme(text=element_text(family = "serif",face="bold",size=14))
 
-# write.csv(death_comp_data, "Data/death_comp_data.csv", row.names = FALSE)
-
-# write.csv(case_comp_data, "Data/case_comp_data.csv", row.names = FALSE)

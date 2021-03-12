@@ -1,4 +1,4 @@
-"name","total_covid_deaths","iso2c","year","Maternal mortality ratio (modeled estimate, per 100,000 live births)","mortality rate (under-5) (per 1,000 live births)","Mortality rate attributed to household and ambient air pollution, age-standardized (per 100,000 population)","Mortality rate attributed to unintentional poisoning (per 100,000 population)","Mortality rate attributed to unsafe water, unsafe sanitation and lack of hygiene (per 100,000 population)","Cause of death, by injury (% of total)","Cause of death, by non-communicable diseases (% of total)","Refugee population by country or territory of asylum","Refugee population by country or territory of origin","Population","covid_death_pct_pop","covid_death_per_1000","covid_death_per_100000"
+"name","total_covid_deaths","iso2c","year","Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births.","mortality.rate..under.5...per.1.000.live.births.","Mortality.rate.attributed.to.household.and.ambient.air.pollution..age.standardized..per.100.000.population.","Mortality.rate.attributed.to.unintentional.poisoning..per.100.000.population.","Mortality.rate.attributed.to.unsafe.water..unsafe.sanitation.and.lack.of.hygiene..per.100.000.population.","Cause.of.death..by.injury....of.total.","Cause.of.death..by.non.communicable.diseases....of.total.","Refugee.population.by.country.or.territory.of.asylum","Refugee.population.by.country.or.territory.of.origin","Population","covid_death_pct_pop","covid_death_per_1000","covid_death_per_100000"
 "Afghanistan",427259,"AF",2016,NA,NA,211.1,1.2,13.9,NA,NA,NA,NA,NA,NA,427.259,4.27259
 "Afghanistan",427259,"AF",2017,638,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,427.259,4.27259
 "Afghanistan",427259,"AF",2019,NA,60.3,NA,NA,NA,17.2884637273119,49.7810848710223,72227,2728853,38041754,0.0112313170417957,427.259,4.27259
@@ -323,9 +323,9 @@
 "Mozambique",32361,"MZ",2016,NA,NA,110,2.9,27.6,NA,NA,NA,NA,NA,NA,32.361,0.32361
 "Mozambique",32361,"MZ",2017,289,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,32.361,0.32361
 "Mozambique",32361,"MZ",2019,NA,74.2,NA,NA,NA,9.39619580490294,36.1641671601934,4713,77,30366036,0.00106569721513865,32.361,0.32361
-"Namibia",35759,"NA",2016,NA,NA,145,1.5,18.3,NA,NA,NA,NA,NA,NA,35.759,0.35759
-"Namibia",35759,"NA",2017,195,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,35.759,0.35759
-"Namibia",35759,"NA",2019,NA,42.4,NA,NA,NA,11.8124947057211,43.0371729362929,3182,459,2494530,0.0143349649032082,35.759,0.35759
+"Namibia",35759,NA,2016,NA,NA,145,1.5,18.3,NA,NA,NA,NA,NA,NA,35.759,0.35759
+"Namibia",35759,NA,2017,195,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,35.759,0.35759
+"Namibia",35759,NA,2019,NA,42.4,NA,NA,NA,11.8124947057211,43.0371729362929,3182,459,2494530,0.0143349649032082,35.759,0.35759
 "Nepal",239293,"NP",2016,NA,NA,193.8,0.4,19.8,NA,NA,NA,NA,NA,NA,239.293,2.39293
 "Nepal",239293,"NP",2017,186,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,239.293,2.39293
 "Nepal",239293,"NP",2019,NA,30.8,NA,NA,NA,8.72184539648093,66.4573216682287,19570,8192,28608710,0.00836434078992027,239.293,2.39293
