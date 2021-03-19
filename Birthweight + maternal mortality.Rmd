@@ -26,20 +26,38 @@ death_comp_data <- read.csv("Data/death_comp_data.csv")
 
 ```{r}
 no_year <- case_comp_data %>% 
-  select(-c(year, iso2c)) %>% 
+  select(-c(year, iso2c, region, income)) %>% 
   group_by(name) %>% 
   replace(is.na(.), 0) %>% 
-  summarise_all(mean) %>% 
-  na_if(0)
+  summarise_all(sum) %>% 
+  na_if(0) %>% 
+  drop_na(Population)
+  
+extra <- case_comp_data %>%
+  select(name, region, income, Population) %>%
+  drop_na(Population) %>%
+  select(-Population)
+
+no_year <- no_year %>% 
+  left_join(extra, by = 'name')
 ```
 
 ```{r}
 no_year_death <- death_comp_data %>% 
-  select(-c(year, iso2c)) %>% 
+  select(-c(year, iso2c, region, income)) %>% 
   group_by(name) %>% 
   replace(is.na(.), 0) %>% 
-  summarise_all(mean) %>% 
-  na_if(0)
+  summarise_all(sum) %>% 
+  na_if(0) %>% 
+  drop_na(Population)
+
+extra <- death_comp_data %>% 
+  select(name, region, income, Population) %>% 
+  drop_na(Population) %>% 
+  select(-Population) 
+
+no_year_death <- no_year_death %>% 
+  left_join(extra, by = 'name')
 ```
 
 
@@ -86,6 +104,15 @@ no_year %>%
 ```
 
 ```{r}
+no_year %>% 
+  filter(name != 'World') %>% 
+  select(name, Low.birthweight.babies....of.births.) %>% 
+  arrange(desc(Low.birthweight.babies....of.births.)) %>% 
+  slice(1:10)
+```
+
+
+```{r}
 # birthweight
 no_year %>% 
   filter(name == 'South Africa' | name == "India" | name == "Brazil") %>% 
@@ -108,10 +135,9 @@ no_year_death %>%
 ```{r}
 # density plot
 no_year_death %>% 
-  ggplot( aes(x=covid_death_pct_pop, color = name)) +
+  ggplot( aes(x=covid_death_per_100000, color = name)) +
     geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
 ```
-
 
 
 ```{r}

@@ -26,30 +26,47 @@ death_comp_data <- read.csv("Data/death_comp_data.csv")
 ```{r}
 # summary statistics
 no_year <- case_comp_data %>% 
-  select(-c(year, iso2c)) %>% 
+  select(-c(year, iso2c, region, income)) %>% 
   group_by(name) %>% 
   replace(is.na(.), 0) %>% 
-  summarise_all(mean) %>% 
-  na_if(0)
+  summarise_all(sum) %>% 
+  na_if(0) %>% 
+  drop_na(Population)
+  
+extra <- case_comp_data %>%
+  select(name, region, income, Population) %>%
+  drop_na(Population) %>%
+  select(-Population)
 
-min_max <- no_year %>% 
-  select(-name) %>% 
-  summarise_all(list(min, max))
+no_year <- no_year %>% 
+  left_join(extra, by = 'name')
 
-summary_stats <- no_year %>% 
-  select(-name) %>% 
-  drop_na() %>% 
-  summarise_all(list(mean = mean,max = max,min = min))
+# min_max <- no_year %>% 
+#   select(-name) %>% 
+#   summarise_all(list(min, max))
+
+# summary_stats <- no_year %>% 
+#   select(-name) %>% 
+#   drop_na() %>% 
+#   summarise_all(list(mean = mean,max = max,min = min))
 ```
 
 ```{r}
 no_year_death <- death_comp_data %>% 
-  select(-c(year, iso2c)) %>% 
+  select(-c(year, iso2c, region, income)) %>% 
   group_by(name) %>% 
   replace(is.na(.), 0) %>% 
-  summarise_all(mean) %>% 
-  na_if(0)
+  summarise_all(sum) %>% 
+  na_if(0) %>% 
+  drop_na(Population)
 
+extra <- death_comp_data %>% 
+  select(name, region, income, Population) %>% 
+  drop_na(Population) %>% 
+  select(-Population) 
+
+no_year_death <- no_year_death %>% 
+  left_join(extra, by = 'name')
 ```
 
 
@@ -217,7 +234,7 @@ no_year %>%
   ggplot(aes(covid_case_pct_pop, Low.birthweight.babies....of.births., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0,8) + 
+  xlim(0,15) + 
   geom_text_repel()
 
 ggsave("low_birthweight.png")
@@ -239,8 +256,8 @@ no_year_death %>%
   ggplot(aes(covid_death_per_1000, mortality.rate..under.5...per.1.000.live.births., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  ylim(0,400) +
-  xlim(0,1000) + 
+  ylim(0,200) +
+  xlim(0,500) + 
   geom_text_repel(max.overlaps = 20)
 ```
 
@@ -281,7 +298,7 @@ ggsave("hygiene.png")
 ```{r}
 # also has outliers
 no_year_death %>% 
-  ggplot(aes(covid_death_pct_pop, Cause.of.death..by.injury....of.total.)) +
+  ggplot(aes(covid_death_pct_pop, Cause.of.death..by.injury....of.total., label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
   xlim(0,7) + 
@@ -304,7 +321,7 @@ no_year_death %>%
   ggplot(aes(total_covid_deaths, Refugee.population.by.country.or.territory.of.origin, label = name)) +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1) +
-  xlim(0, 7500000) + 
+  xlim(0, 1000000) + 
   geom_text_repel()
 ```
 

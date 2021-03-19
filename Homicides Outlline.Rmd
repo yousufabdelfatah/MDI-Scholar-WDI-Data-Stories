@@ -26,17 +26,7 @@ intentional_homicide["Male"] <- intentional_homicide_male["VC.IHR.PSRC.MA.P5"]
 ```
 
 
-
 ```{r}
-# when we sum all worldwide homicides this is what we get
-intentional_homicide %>% 
-  drop_na() %>% 
-  filter(region != "Aggregates") %>% 
-  group_by(year) %>% 
-  summarise(VC.IHR.PSRC.P5 = sum(VC.IHR.PSRC.P5)) %>% 
-  ggplot(aes(x= year, y = VC.IHR.PSRC.P5)) +
-  geom_point()
-
 # but when we look at the world aggregate
 intentional_homicide %>% 
   drop_na() %>% 
@@ -45,25 +35,10 @@ intentional_homicide %>%
   geom_point()
 ```
 
-- There's a downward trend for sure but the question is: does it go up first and then come down?
-- If we filter using only world it's going down but when we sum all countries it goes up?
-
-```{r}
-intentional_homicide %>% 
-  group_by(year) %>% 
-  drop_na() %>% 
-  summarise(Female = sum(Female)) %>% 
-  ggplot(aes(x= year, y = Female)) +
-  geom_point() 
-
-intentional_homicide %>% 
-  group_by(year) %>% 
-  drop_na() %>% 
-  summarise(Male = sum(Male)) %>% 
-  ggplot(aes(x= year, y = Male)) +
-  geom_point()
-```
-
+- There's a clear downward trend since data collection begins in 1990. 
+- Average homicides are down almost 18% from start year
+- They're down almost 25% from their peak
+- However these gains have not been distributed evenly, and some regions continue to have much higher homicide rates. Additionally there is a very noticeable gender discrepancy
 
 ```{r}
 # put them both on the same graph
@@ -74,9 +49,30 @@ intentional_homicide %>%
   geom_smooth(method = "loess",se=F,size=1.5) +
   facet_wrap(~name,nrow=1) +
   geom_point() 
+
+mean_male <- mean(intentional_homicide$Male, na.rm = TRUE)
+
+mean_female <- mean(intentional_homicide$Female, na.rm = TRUE)
+
+
+# density plot
+intentional_homicide %>% 
+  pivot_longer(cols = c(Male, Female)) %>% 
+  drop_na() %>% 
+  ggplot(aes(x=value, fill = name)) +
+  geom_density(alpha=0.4) +
+    geom_vline(aes(xintercept=mean_male), color = "blue",
+             linetype="dashed") +
+  geom_vline(aes(xintercept=mean_female), color = "red",
+             linetype="dashed") +
+  xlim(0,50)
 ```
 
 As demonstrated by the charts above, men and women have drastically different homicide rates, both in terms of averages and distributions. 
+
+Women are much more highly concentrated at lower homicide rates
+Men are much more evenly distributed and the distirbution extends all the way to 200
+The mean of men is also signficantly higher (14.2 as compared to 2.3)
 
 
 ```{r}
@@ -94,11 +90,53 @@ intentional_homicide %>%
   summarise(VC.IHR.PSRC.P5 = mean(VC.IHR.PSRC.P5)) %>% 
   ggplot(aes(x= year, y = VC.IHR.PSRC.P5, color = region)) +
   geom_point()
+
+# averages
+intentional_homicide %>% 
+  filter(region == "North America", year > 1990) %>% 
+  drop_na() %>% 
+  group_by(year, region) %>% 
+  summarise(VC.IHR.PSRC.P5 = mean(VC.IHR.PSRC.P5)) %>% 
+  ggplot(aes(x= year, y = VC.IHR.PSRC.P5, color = region)) +
+  geom_point()
 ```
 The first graph shows individual countries colored by their respective region. 
 The second graph shows regional averages
 Latin America has significantly higher averages than any other region
 Sub Saharan Africa spikes after 2005?
+North America also doens't have the same pronounced decrease
+
+```{r}
+# bar chart by region in 2000
+intentional_homicide %>% 
+  filter(region != "Aggregates", year == 2000) %>% 
+  drop_na() %>% 
+  group_by(region) %>% 
+  summarise(VC.IHR.PSRC.P5 = mean(VC.IHR.PSRC.P5)) %>% 
+  ggplot(aes(x= region, y = VC.IHR.PSRC.P5, fill = region)) +
+  geom_bar(stat="identity")
+
+# bar chart by region in 2010
+intentional_homicide %>% 
+  filter(region != "Aggregates", year == 2010) %>% 
+  drop_na() %>% 
+  group_by(region) %>% 
+  summarise(VC.IHR.PSRC.P5 = mean(VC.IHR.PSRC.P5)) %>% 
+  ggplot(aes(x= region, y = VC.IHR.PSRC.P5, fill = region)) +
+  geom_bar(stat="identity")
+
+#bar chart by region in 2018
+intentional_homicide %>% 
+  filter(region != "Aggregates", year == 2018) %>% 
+  drop_na() %>% 
+  group_by(region) %>% 
+  summarise(VC.IHR.PSRC.P5 = mean(VC.IHR.PSRC.P5)) %>% 
+  ggplot(aes(x= region, y = VC.IHR.PSRC.P5, fill = region)) +
+  geom_bar(stat="identity")
+```
+Again, Latin America is noticeably higher
+North America also doesn't seem to experience the same gains
+Animated or interactive that goes year by year and shows the change over time
 
 
 ```{r}
@@ -116,9 +154,18 @@ intentional_homicide %>%
   summarise(VC.IHR.PSRC.P5 = mean(VC.IHR.PSRC.P5)) %>% 
   ggplot(aes(x= year, y = VC.IHR.PSRC.P5, color = income)) +
   geom_point()
+
+intentional_homicide %>%
+  filter(income != 'Aggregates',year > 1990) %>%
+  ggplot(aes(x = income, y = VC.IHR.PSRC.P5, color = income)) +
+  geom_boxplot()
 ```
 . 
-Interestingly it seems like the relationship between income and homicides are different than we may expect. Middle incomes seem to have the highest rates, high income is consistnelty low, and low income varies.
+Interestingly it seems like the relationship between income and homicides are different than we may expect. Middle incomes seem to have the highest rates, high income is consistently low, and low income varies.
+
+Middle incomes have higher medians. Upper middle income actually has the highest median but lower middle income has a greater distirbution
+
+Finding: High income reduces homicide rates as expected but middle income seems to really be where the conflict is. 
 
 
 ```{r}
@@ -143,9 +190,9 @@ intentional_homicide %>%
   ggplot(aes(x=Female, xend=Male, y=region)) + 
     geom_dumbbell(size=1.5, color="#b2b2b2", size_x=3, size_xend = 3, colour_x = 'red', colour_xend = 'blue') +
     geom_text(aes(x=Male, y=region, label="Male"),
-          color=blue, size=3, vjust=-1.5) +
+          color='blue', size=3, vjust=-1.5) +
   geom_text(aes(x=Female, y=region, label="Female"),
-          color=red, size=3, vjust=-1.5) +
+          color='red', size=3, vjust=-1.5) +
   geom_text(aes(x=Male, y=region, label=round(Male, 1)),
           color='blue', size=2.75, vjust=2.5) +
   geom_text(color='red', size=2.75, vjust=2.5,
@@ -154,5 +201,9 @@ intentional_homicide %>%
     
 ```
 
-Even in Latin America being a woman reduces your homicide possibilty significanlty. Middle East low in both. Man in East Asiaa better than woman in LAC. 
+Even in Latin America being a woman reduces your homicide possibilty significanlty. 
+Middle East low in both. Man in East Asia better than woman in LAC. 
+The two seem to track together -> high homicide rate in one generally means high homicide rate in the other. Non indepdnece means intervention will need to address undelrying factors causing both.  
+
+
 

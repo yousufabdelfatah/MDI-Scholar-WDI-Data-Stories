@@ -2,51 +2,51 @@ library(tidyverse)
 library(WDI)
 library(corrr)
 
-# # Get COVID data ----------------------------------------------------------
-# api_root_url <- "http://cvapi.zognet.net/"
-# 
-# # get world covid-19 data
-# country_url = paste0(api_root_url, "manifest.json")
-# world_url = paste0(api_root_url, "world.json")
-# 
-# 
-# # get world covid-19 data
-# ctry_data <- jsonlite::fromJSON(country_url)
-# wld_data <- jsonlite::fromJSON(world_url)$data
-# wld_data$iso <- "WLD"
-# wld_data$name <- "World"
-# wld_data <- wld_data[, c("iso", "name", "date", "confirmed", "deaths", "recovered")]
-# wld_data$`COVID-19 cases: Active` <- wld_data$confirmed - wld_data$deaths - wld_data$recovered
-# 
-# # get country list
-# country_list = names(ctry_data)
-# 
-# # country level covid-19 data
-# full_country_data <- vector(mode = "list", length = length(country_list))
-# 
-# for (i in seq_along(country_list)) { # loop through countries
-#   daturl = paste(api_root_url, country_list[i], ".json", sep = "")
-#   country_info = RJSONIO::fromJSON(daturl, nullValue = NA)[[1]]
-#   iso = country_info[["iso"]]
-#   name = country_info[["name"]]
-#   country_raw = RJSONIO::fromJSON(daturl, nullValue = NA)[[2]]
-#   country_data = lapply(country_raw, function(j) cbind(j$date, j$confirmed, j$deaths, j$recovered))
-#   country_data = data.frame(do.call('rbind', country_data), stringsAsFactors = FALSE)
-#   colnames(country_data) = c( "date", "confirmed", "deaths", "recovered")
-#   country_data <- cbind(iso, name, country_data) # add country info to the data set
-#   country_data$iso <- as.character(country_data$iso)
-#   country_data$name <- as.character(country_data$name)
-#   full_country_data[[i]] <- country_data # attach the country info to the full list
-# }
-# 
-# full_country_data <- dplyr::bind_rows(full_country_data)
-# 
-# full_country_data <- full_country_data %>%
-#   select("iso", "name", "date", "confirmed", "deaths")
+# Get COVID data ----------------------------------------------------------
+api_root_url <- "http://cvapi.zognet.net/"
+
+# get world covid-19 data
+country_url = paste0(api_root_url, "manifest.json")
+world_url = paste0(api_root_url, "world.json")
+
+
+# get world covid-19 data
+ctry_data <- jsonlite::fromJSON(country_url)
+wld_data <- jsonlite::fromJSON(world_url)$data
+wld_data$iso <- "WLD"
+wld_data$name <- "World"
+wld_data <- wld_data[, c("iso", "name", "date", "confirmed", "deaths", "recovered")]
+wld_data$`COVID-19 cases: Active` <- wld_data$confirmed - wld_data$deaths - wld_data$recovered
+
+# get country list
+country_list = names(ctry_data)
+
+# country level covid-19 data
+full_country_data <- vector(mode = "list", length = length(country_list))
+
+for (i in seq_along(country_list)) { # loop through countries
+  daturl = paste(api_root_url, country_list[i], ".json", sep = "")
+  country_info = RJSONIO::fromJSON(daturl, nullValue = NA)[[1]]
+  iso = country_info[["iso"]]
+  name = country_info[["name"]]
+  country_raw = RJSONIO::fromJSON(daturl, nullValue = NA)[[2]]
+  country_data = lapply(country_raw, function(j) cbind(j$date, j$confirmed, j$deaths, j$recovered))
+  country_data = data.frame(do.call('rbind', country_data), stringsAsFactors = FALSE)
+  colnames(country_data) = c( "date", "confirmed", "deaths", "recovered")
+  country_data <- cbind(iso, name, country_data) # add country info to the data set
+  country_data$iso <- as.character(country_data$iso)
+  country_data$name <- as.character(country_data$name)
+  full_country_data[[i]] <- country_data # attach the country info to the full list
+}
+
+full_country_data <- dplyr::bind_rows(full_country_data)
+
+full_country_data <- full_country_data %>%
+  select("iso", "name", "date", "confirmed", "deaths")
 # 
 # #Get world bank data -----------------------------------------------------
-# death_comp <- WDI(indicator = c('Maternal mortality ratio (modeled estimate, per 100,000 live births)'  = 'SH.STA.MMRT', 
-#                                'mortality rate (under-5) (per 1,000 live births)' = 'SH.DYN.MORT', 
+# death_comp <- WDI(indicator = c('Maternal mortality ratio (modeled estimate, per 100,000 live births)'  = 'SH.STA.MMRT',
+#                                'mortality rate (under-5) (per 1,000 live births)' = 'SH.DYN.MORT',
 #                                'Mortality rate attributed to household and ambient air pollution, age-standardized (per 100,000 population)' = 'SH.STA.AIRP.P5',
 #                                'Mortality rate attributed to unintentional poisoning (per 100,000 population)' = 'SH.STA.POIS.P5',
 #                                'Mortality rate attributed to unsafe water, unsafe sanitation and lack of hygiene (per 100,000 population)' = 'SH.STA.WASH.P5',
@@ -54,7 +54,7 @@ library(corrr)
 #                                'Cause of death, by non-communicable diseases (% of total)' = 'SH.DTH.NCOM.ZS',
 #                                'Refugee population by country or territory of asylum' = 'SM.POP.REFG',
 #                                'Refugee population by country or territory of origin' = 'SM.POP.REFG.OR',
-#                                'Population' = 'SP.POP.TOTL'), latest = 1) 
+#                                'Population' = 'SP.POP.TOTL'), latest = 1)
 # 
 # case_comp <- WDI(indicator = c('Poverty headcount ratio at $1.90 a day (2011 PPP) (% of population)' = 'SI.POV.DDAY',
 #                                 'Prevalence of stunting, height for age (% of children under 5)' = 'SH.STA.STNT.ZS',
@@ -67,6 +67,24 @@ library(corrr)
 #                                 'People with basic handwashing facilities including soap and water (% of population)' = 'SH.STA.HYGN.ZS',
 #                                 'Low-birthweight babies (% of births)' = 'SH.STA.BRTW.ZS',
 #                                 'Population' = 'SP.POP.TOTL'), latest = 1)
+
+extra <- WDI(indicator = 'SH.STA.MMRT', extra = TRUE)
+
+extra <- extra %>% 
+  select(country, region, income) %>% 
+  distinct()
+
+# merge extra
+case_comp_data <- read.csv("Data/case_comp_data.csv")
+
+death_comp_data <- read.csv("Data/death_comp_data.csv")
+
+case_comp_data <- case_comp_data %>% 
+  left_join(extra, by = c("name" = "country"))
+
+death_comp_data <- death_comp_data %>% 
+  left_join(extra, by = c("name" = "country"))                           
+                            
 # 
 # # Manipulate Data ----------------------------------------------------------
 # # there are several countries with years before 2015 so let's get rid of them
@@ -76,11 +94,28 @@ library(corrr)
 # case_comp <- case_comp %>% 
 #   filter(year >= 2015)
 #   
-# #sum cases and deaths
-# summed_data <- full_country_data %>% 
-#   group_by(name) %>% 
-#   summarise(total_covid_deaths = sum(as.numeric(deaths)),
-#             total_covid_cases=sum(as.numeric(confirmed)))
+
+# get latest cases and deaths
+total_cases <- full_country_data %>% 
+  filter(date == '2021/03/13') %>% 
+  select(name, confirmed)
+
+total_deaths <- full_country_data %>% 
+  filter(date == '2021/03/13') %>% 
+  select(name, deaths)
+
+#join
+case_comp_data <- case_comp_data %>% 
+  select(-total_covid_cases) %>% 
+  left_join(total_cases, by = "name") %>% 
+  rename("total_covid_cases" = "confirmed")
+
+death_comp_data <- death_comp_data %>% 
+  select(-total_covid_deaths) %>% 
+  left_join(total_deaths, by = "name") %>% 
+  rename("total_covid_deaths" = "deaths")
+  
+
 #   
 # 
 # # join the data frames
@@ -94,22 +129,22 @@ library(corrr)
 #   left_join(case_comp, by = c("name" = "country"))
 # 
 # 
-# # calculate percentages 
-# case_comp_data$covid_case_pct_pop <- case_comp_data$total_covid_cases /  case_comp_data$Population
-# # 
-# case_comp_data$covid_case_per_1000 <- case_comp_data$total_covid_cases / 1000
-# # 
-# case_comp_data$covid_case_per_100000 <- case_comp_data$total_covid_cases /100000
-# # 
-# death_comp_data$covid_death_pct_pop <- death_comp_data$total_covid_deaths /  death_comp_data$Population
-# # 
-# death_comp_data$covid_death_per_1000 <- death_comp_data$total_covid_deaths / 1000
-# # 
-# death_comp_data$covid_death_per_100000 <- death_comp_data$total_covid_deaths / 100000
-# 
-# write.csv(death_comp_data, "Data/death_comp_data.csv", row.names = FALSE)
-#  
-# write.csv(case_comp_data, "Data/case_comp_data.csv", row.names = FALSE) 
+ # calculate percentages 
+case_comp_data$covid_case_pct_pop <- (as.numeric(case_comp_data$total_covid_cases) /  case_comp_data$Population) * 100
+#
+case_comp_data$covid_case_per_1000 <- (as.numeric(case_comp_data$total_covid_cases) /case_comp_data$Population) * 1000
+#(
+case_comp_data$covid_case_per_100000 <- (as.numeric(case_comp_data$total_covid_cases) /case_comp_data$Population) * 100000
+#
+death_comp_data$covid_death_pct_pop <- (as.numeric(death_comp_data$total_covid_deaths) /  death_comp_data$Population)  * 100
+#
+death_comp_data$covid_death_per_1000 <- (as.numeric(death_comp_data$total_covid_deaths) /death_comp_data$Population) * 1000
+#
+death_comp_data$covid_death_per_100000 <- (as.numeric(death_comp_data$total_covid_deaths) /death_comp_data$Population) * 100000
+
+write.csv(death_comp_data, "Data/death_comp_data.csv", row.names = FALSE)
+
+write.csv(case_comp_data, "Data/case_comp_data.csv", row.names = FALSE)
 
 case_comp_data <- read.csv("Data/case_comp_data.csv")
 
