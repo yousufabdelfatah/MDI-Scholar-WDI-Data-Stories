@@ -104,12 +104,42 @@ no_year %>%
 ```
 
 ```{r}
+# Pollution
 no_year %>% 
   filter(name != 'World') %>% 
-  select(name, Low.birthweight.babies....of.births.) %>% 
-  arrange(desc(Low.birthweight.babies....of.births.)) %>% 
-  slice(1:10)
+  arrange(desc(PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total.)) %>% 
+  slice(1:10) %>% 
+  arrange(desc(covid_case_pct_pop)) %>% 
+  ggplot(aes(x= covid_case_pct_pop, xend=PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total., y = name, group = name )) +
+  geom_dumbbell() 
+
+no_year %>% 
+  filter(name != 'World') %>% 
+  arrange(PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total.) %>% 
+  slice(1:10) %>% 
+  arrange(covid_case_pct_pop) %>% 
+  ggplot(aes(x= covid_case_pct_pop, xend=PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total., y = name, group = name )) +
+  geom_dumbbell() 
 ```
+```{r}
+# Infant
+no_year_death %>% 
+  filter(name != 'World') %>% 
+  arrange(desc(mortality.rate..under.5...per.1.000.live.births.)) %>% 
+  slice(1:10) %>% 
+  arrange(desc(covid_death_per_1000)) %>% 
+  ggplot(aes(x= covid_death_per_1000, xend=mortality.rate..under.5...per.1.000.live.births., y = name, group = name )) +
+  geom_dumbbell() 
+
+no_year_death %>% 
+  filter(name != 'World') %>% 
+  arrange(mortality.rate..under.5...per.1.000.live.births.) %>% 
+  slice(1:10) %>% 
+  arrange(covid_death_per_1000) %>% 
+  ggplot(aes(x= covid_death_per_1000, xend=mortality.rate..under.5...per.1.000.live.births., y = name, group = name )) +
+  geom_dumbbell() 
+```
+
 
 
 ```{r}
@@ -135,6 +165,15 @@ no_year_death %>%
 ```{r}
 # density plot
 no_year_death %>% 
+  ggplot( aes(x=mortality.rate..under.5...per.1.000.live.births., color = name)) +
+    geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
+```
+
+
+
+```{r}
+# density plot
+no_year_death %>% 
   ggplot( aes(x=covid_death_per_100000, color = name)) +
     geom_density(fill="#69b3a2", color="#e9ecef", alpha=0.8)
 ```
@@ -143,8 +182,10 @@ no_year_death %>%
 ```{r}
 no_year %>% 
   ggplot( aes(x=Low.birthweight.babies....of.births., color = name)) +
-    geom_density(fill="#FF6666", color="#e9ecef", alpha=0.8)
+    geom_density(fill="#FF6666", color="#e9ecef", alpha=0.8) 
 ```
+
+
 ```{r}
 no_year %>% 
   ggplot( aes(x=covid_case_pct_pop, color = name)) +
@@ -153,5 +194,85 @@ no_year %>%
 
 
 
+```{r}
+# birth weight by income group
+no_year %>% 
+  filter(income != "Aggregates") %>% 
+  drop_na(Low.birthweight.babies....of.births.) %>% 
+  group_by(income) %>% 
+  summarise(Low.birthweight.babies....of.births. = mean(Low.birthweight.babies....of.births.)) %>% 
+  ggplot(aes(x= income, y = Low.birthweight.babies....of.births., fill = income)) +
+  geom_bar(stat="identity")
+
+# maternal mortality rates by income group
+no_year_death %>% 
+  filter(income != "Aggregates") %>% 
+  drop_na(Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births.) %>% 
+  group_by(income) %>% 
+  summarise(Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births. = mean(Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births.)) %>% 
+  ggplot(aes(x= income, y = Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births., fill = income)) +
+  geom_bar(stat="identity")
+
+# infant mortality
+no_year_death %>% 
+  filter(income != "Aggregates") %>% 
+  drop_na(mortality.rate..under.5...per.1.000.live.births.) %>% 
+  group_by(income) %>% 
+  summarise(mortality.rate..under.5...per.1.000.live.births. = mean(mortality.rate..under.5...per.1.000.live.births.)) %>% 
+  ggplot(aes(x= income, y = mortality.rate..under.5...per.1.000.live.births., fill = income)) +
+  geom_bar(stat="identity")
+
+# pollution 
+no_year %>% 
+  filter(income != "Aggregates") %>% 
+  drop_na(PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total.) %>% 
+  group_by(income) %>% 
+  summarise(PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total. = mean(PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total.)) %>% 
+  ggplot(aes(x= income, y = PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total., fill = income)) +
+  geom_bar(stat="identity")
+
+```
+
+
+
+```{r}
+#covid
+mean(no_year$covid_case_pct_pop, na.rm = TRUE)
+mean(no_year$covid_case_per_1000, na.rm = TRUE)
+mean(no_year$covid_case_per_100000, na.rm = TRUE)
+
+mean(no_year_death$covid_death_pct_pop, na.rm = TRUE)
+mean(no_year_death$covid_death_per_1000, na.rm = TRUE)
+mean(no_year_death$covid_death_per_100000, na.rm = TRUE)
+```
+
+```{r}
+mean(no_year$PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total., na.rm = TRUE)
+sd(no_year$PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total., na.rm = TRUE)
+min(no_year$PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total., na.rm = TRUE)
+max(no_year$PM2.5.air.pollution..population.exposed.to.levels.exceeding.WHO.guideline.value....of.total., na.rm = TRUE)
+```
+
+```{r}
+mean(no_year$Low.birthweight.babies....of.births., na.rm = TRUE)
+sd(no_year$Low.birthweight.babies....of.births., na.rm = TRUE)
+min(no_year$Low.birthweight.babies....of.births., na.rm = TRUE)
+max(no_year$Low.birthweight.babies....of.births., na.rm = TRUE)
+```
+
+```{r}
+mean(no_year_death$Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births., na.rm = TRUE)
+sd(no_year_death$Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births., na.rm = TRUE)
+min(no_year_death$Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births., na.rm = TRUE)
+max(no_year_death$Maternal.mortality.ratio..modeled.estimate..per.100.000.live.births., na.rm = TRUE)
+```
+
+```{r}
+mean(no_year_death$mortality.rate..under.5...per.1.000.live.births., na.rm = TRUE)
+sd(no_year_death$mortality.rate..under.5...per.1.000.live.births., na.rm = TRUE)
+min(no_year_death$mortality.rate..under.5...per.1.000.live.births., na.rm = TRUE)
+max(no_year_death$mortality.rate..under.5...per.1.000.live.births., na.rm = TRUE)
+
+```
 
 
