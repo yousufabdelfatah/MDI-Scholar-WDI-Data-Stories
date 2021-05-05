@@ -14,6 +14,31 @@ library(tidyverse)
 library(ggalt)
 ```
 
+```{r}
+df_region <- read_csv("Data/un-regional-homicide-rate.csv")
+df_region %>% 
+  filter(year == 2018) %>% 
+  select(un_region, rate) %>% 
+  ggplot(aes(x= un_region, y = rate, fill = un_region)) +
+  geom_bar(stat="identity")
+```
+
+Americas has the most by far with Africa as a close-ish runner up. Other regions fall way below (I wonder if Americas is lowered by North America- how is it weighted?)
+
+
+```{r}
+df_income <- wbstats::wb_data(
+  # Incomelevels
+  country = wb_income_levels()$iso3c,
+  indicator = c('VC.IHR.PSRC.P5', 'VC.IHR.PSRC.FE.P5', 'VC.IHR.PSRC.MA.P5'),
+  return_wide = TRUE)
+df_income %>% 
+  filter(date == 2015) %>% 
+  select(iso3c, VC.IHR.PSRC.P5, country) %>% 
+  ggplot(aes(x= iso3c, y = VC.IHR.PSRC.P5, fill = country)) +
+  geom_bar(stat="identity")
+```
+
 
 ```{r}
 # pull and combine data
@@ -25,20 +50,36 @@ intentional_homicide["Female"] <- intentional_homicide_fem["VC.IHR.PSRC.FE.P5"]
 intentional_homicide["Male"] <- intentional_homicide_male["VC.IHR.PSRC.MA.P5"]
 ```
 
+```{r}
+intentional_homicide_map <- WDI(indicator='VC.IHR.PSRC.P5', extra = TRUE, latest = 1) %>% 
+  write_csv("Data/homicides_map.csv")
+```
+
+https://public.flourish.studio/visualisation/6058072/
+
 
 ```{r}
-# but when we look at the world aggregate
-intentional_homicide %>% 
-  drop_na() %>% 
-  filter(country == "World") %>% 
-  ggplot(aes(x= year, y = VC.IHR.PSRC.P5)) +
-  geom_point()
+intentional_homicide_MRV = WDI(indicator='VC.IHR.PSRC.P5', extra = TRUE, latest = 1)
+intentional_homicide_fem_MRV = WDI(indicator = "VC.IHR.PSRC.FE.P5", extra = TRUE, latest = 1)
+intentional_homicide_male_MRV = WDI(indicator = "VC.IHR.PSRC.MA.P5", extra = TRUE, latest = 1)
+
+intentional_homicide_gendered_MRV <- merge(intentional_homicide_fem_MRV, intentional_homicide_male_MRV, by = "country") %>% 
+  rename(Female = VC.IHR.PSRC.FE.P5,
+         Male = VC.IHR.PSRC.MA.P5)
+```
+
+
+```{r}
+# but when we look at the world aggregates
+df_region %>% 
+  select(un_region, rate, year) %>% 
+  ggplot(aes(x= year, y = rate, color = un_region)) +
+  geom_point(stat="identity")
 ```
 
 - There's a clear downward trend since data collection begins in 1990. 
-- Average homicides are down almost 18% from start year
-- They're down almost 25% from their peak
 - However these gains have not been distributed evenly, and some regions continue to have much higher homicide rates. Additionally there is a very noticeable gender discrepancy
+- Americas is the only one that seems to stay up
 
 ```{r}
 # put them both on the same graph
@@ -145,20 +186,6 @@ intentional_homicide %>%
   filter(income != 'Aggregates',year > 1990) %>%
   ggplot(aes(x= year, y = VC.IHR.PSRC.P5, color = income)) +
   geom_point()
-
-# averages
-intentional_homicide %>% 
-  filter(region != "Aggregates", year > 1990) %>% 
-  drop_na() %>% 
-  group_by(year, income) %>% 
-  summarise(VC.IHR.PSRC.P5 = mean(VC.IHR.PSRC.P5)) %>% 
-  ggplot(aes(x= year, y = VC.IHR.PSRC.P5, color = income)) +
-  geom_point()
-
-intentional_homicide %>%
-  filter(income != 'Aggregates',year > 1990) %>%
-  ggplot(aes(x = income, y = VC.IHR.PSRC.P5, color = income)) +
-  geom_boxplot()
 ```
 . 
 Interestingly it seems like the relationship between income and homicides are different than we may expect. Middle incomes seem to have the highest rates, high income is consistently low, and low income varies.
@@ -179,24 +206,22 @@ intentional_homicide %>%
 
 Based on the regression it seems like upper middle income and lower middle income are actually more likely to be correlated with homicides and are highly statistically significant. 
 
-```{r}
+```{r, fig.height= 20, fig.width= 10}
 # dumbbell plot
 
-intentional_homicide %>% 
-  filter(region != "Aggregates") %>% 
-  drop_na() %>% 
-  group_by(region) %>% 
-  summarise(Female = mean(Female), Male= mean(Male)) %>% 
-  ggplot(aes(x=Female, xend=Male, y=region)) + 
+intentional_homicide_gendered_MRV %>% 
+  mutate(country = fct_reorder(country, Male)) %>% 
+  filter(region.x != "Aggregates") %>% 
+  ggplot(aes(x=Female, xend=Male, y=country)) + 
     geom_dumbbell(size=1.5, color="#b2b2b2", size_x=3, size_xend = 3, colour_x = 'red', colour_xend = 'blue') +
-    geom_text(aes(x=Male, y=region, label="Male"),
+    geom_text(aes(x=Male, y=country, label="Male"),
           color='blue', size=3, vjust=-1.5) +
-  geom_text(aes(x=Female, y=region, label="Female"),
+  geom_text(aes(x=Female, y=country, label="Female"),
           color='red', size=3, vjust=-1.5) +
-  geom_text(aes(x=Male, y=region, label=round(Male, 1)),
+  geom_text(aes(x=Male, y=country, label=round(Male, 1)),
           color='blue', size=2.75, vjust=2.5) +
   geom_text(color='red', size=2.75, vjust=2.5,
-          aes(x=Female, y=region, label=round(Female, 1))) 
+          aes(x=Female, y=country, label=round(Female, 1))) 
   
     
 ```
